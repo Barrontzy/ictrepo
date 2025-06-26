@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Equipment List - ICT Services Management System</title>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background-color: #f8f9fa;
+        color: #333;
+    }
+
+    .header {
+        background: white;
+        border-bottom: 1px solid #e5e7eb;
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .logo {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .logo::before {
+        content: "⚙️";
+        font-size: 1.2rem;
+    }
+
+    .nav {
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+    }
+
+    .nav a {
+        text-decoration: none;
+        color: #6b7280;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+
+    .nav a:hover, .nav a.active {
+        color: #111827;
+    }
+
+    .user-menu {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #111827;
+        font-weight: 500;
+    }
+
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #10b981;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+    .logout-btn {
+        background: #ef4444;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .logout-btn:hover {
+        background: #dc2626;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .page-header {
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+    }
+
+    .add-btn {
+        background: #10b981;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .add-btn:hover {
+        background: #059669;
+    }
+
+    .search-filter {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .search-box {
+        flex: 1;
+        position: relative;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 0.75rem 1rem 0.75rem 2.5rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 0.875rem;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6b7280;
+        font-size: 1rem;
+    }
+
+    .filter-dropdown {
+        padding: 0.75rem 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        background: white;
+    }
+
+    .equipment-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .equipment-table th {
+        background: #f9fafb;
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: #374151;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .equipment-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #e5e7eb;
+        color: #111827;
+    }
+
+    .equipment-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .equipment-table tr:hover {
+        background: #f9fafb;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .status-operational {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .status-maintenance {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-offline {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .action-btn {
+        padding: 0.5rem;
+        margin-right: 0.5rem;
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-size: 1rem;
+        color: #6b7280;
+        border-radius: 4px;
+        transition: all 0.2s;
+    }
+
+    .action-btn:hover {
+        background: #f3f4f6;
+        color: #111827;
+    }
+
+    .actions {
+        white-space: nowrap;
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        margin-top: 2rem;
+        gap: 0.5rem;
+    }
+
+    .page-btn {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #d1d5db;
+        background: white;
+        color: #374151;
+        font-size: 0.875rem;
+        cursor: pointer;
+        border-radius: 6px;
+        transition: all 0.2s;
+    }
+
+    .page-btn:hover, .page-btn.active {
+        background: #f3f4f6;
+        border-color: #9ca3af;
+    }
+
+    .page-btn.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    /* Modal styles */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        overflow-y: auto;
+    }
+
+    .modal-content {
+        background-color: white;
+        margin: 2rem auto;
+        padding: 2rem;
+        border-radius: 8px;
+        max-width: 600px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        position: relative;
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        font-size: 1.5rem;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #6b7280;
+    }
+
+    .close-btn:hover {
+        color: #111827;
+    }
+
+    .modal-header {
+        margin-bottom: 1.5rem;
+    }
+
+    .modal-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #374151;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 0.875rem;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+
+    .form-select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        background: white;
+    }
+
+    .form-select:focus {
+        outline: none;
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+    }
+
+    .cancel-btn {
+        padding: 0.75rem 1.5rem;
+        background: #f3f4f6;
+        color: #374151;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .cancel-btn:hover {
+        background: #e5e7eb;
+    }
+
+    .submit-btn {
+        padding: 0.75rem 1.5rem;
+        background: #10b981;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .submit-btn:hover {
+        background: #059669;
+    }
+
+    @media (max-width: 768px) {
+        .nav {
+            display: none;
+        }
+        
+        .container {
+            padding: 1rem;
+        }
+        
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .search-filter {
+            flex-direction: column;
+        }
+    }
+</style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">ICT Services Management System</div>
+        <nav class="nav">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="equipment.html" class="active">Equipment</a>
+            <a href="maintenance-logs.html">Maintenance Logs</a>
+            <a href="qr-generator.html">QR Generator</a>
+        </nav>
+        <div class="user-menu">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <span id="username">Admin</span>
+            </div>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="page-header">
+            <h1 class="page-title">Equipment List</h1>
+            <button class="add-btn" onclick="openAddModal()">
+                <span>➕</span>
+                Add Equipment
+            </button>
+        </div>
+
+        <div class="search-filter">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" class="search-input" placeholder="Search by PC number, category, location...">
+            </div>
+            <select id="categoryFilter" class="filter-dropdown">
+                <option value="">All Categories</option>
+                <option value="Desktop">Desktop</option>
+                <option value="Laptop">Laptop</option>
+                <option value="Printer">Printer</option>
+                <option value="Router">Router</option>
+                <option value="Switch">Switch</option>
+                <option value="Scanner">Scanner</option>
+            </select>
+            <select id="statusFilter" class="filter-dropdown">
+                <option value="">All Statuses</option>
+                <option value="Operational">Operational</option>
+                <option value="Maintenance">Maintenance</option>
+                <option value="Offline">Offline</option>
+            </select>
+        </div>
+
+        <table class="equipment-table">
+            <thead>
+                <tr>
+                    <th>PC Number</th>
+                    <th>Category</th>
+                    <th>Location</th>
+                    <th>Last Maintenance</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="equipmentTableBody">
+                <!-- Equipment data will be inserted here -->
+            </tbody>
+        </table>
+
+        <div class="pagination">
+            <button class="page-btn disabled">Previous</button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn">Next</button>
+        </div>
+    </main>
+
+    <!-- Add Equipment Modal -->
+    <div id="addEquipmentModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeAddModal()">&times;</button>
+            <div class="modal-header">
+                <h2 class="modal-title">Add New Equipment</h2>
+            </div>
+            <form id="addEquipmentForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="pcNumber" class="form-label">PC/Equipment Number</label>
+                        <input type="text" id="pcNumber" class="form-input" placeholder="e.g. PC-001" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="category" class="form-label">Category</label>
+                        <select id="category" class="form-select" required>
+                            <option value="" disabled selected>Select category</option>
+                            <option value="Desktop">Desktop</option>
+                            <option value="Laptop">Laptop</option>
+                            <option value="Printer">Printer</option>
+                            <option value="Router">Router</option>
+                            <option value="Switch">Switch</option>
+                            <option value="Scanner">Scanner</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="location" class="form-label">Location</label>
+                    <input type="text" id="location" class="form-input" placeholder="e.g. Main Building, Floor 1, Room 101" required>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="assignedUser" class="form-label">Assigned User</label>
+                        <input type="text" id="assignedUser" class="form-input" placeholder="e.g. John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label for="status" class="form-label">Status</label>
+                        <select id="status" class="form-select" required>
+                            <option value="Operational" selected>Operational</option>
+                            <option value="Maintenance">Maintenance</option>
+                            <option value="Offline">Offline</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="serialNumber" class="form-label">Serial Number</label>
+                        <input type="text" id="serialNumber" class="form-input" placeholder="e.g. SN12345678">
+                    </div>
+                    <div class="form-group">
+                        <label for="purchaseDate" class="form-label">Purchase Date</label>
+                        <input type="date" id="purchaseDate" class="form-input">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes" class="form-label">Notes</label>
+                    <textarea id="notes" class="form-input" rows="3" placeholder="Additional information about this equipment"></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="cancel-btn" onclick="closeAddModal()">Cancel</button>
+                    <button type="submit" class="submit-btn">Add Equipment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Equipment Details Modal -->
+    <div id="equipmentDetailsModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeDetailsModal()">&times;</button>
+            <div class="modal-header">
+                <h2 class="modal-title" id="detailsTitle">Equipment Details</h2>
+            </div>
+            <div id="equipmentDetails">
+                <!-- Equipment details will be inserted here -->
+            </div>
+            <div class="form-actions">
+                <button type="button" class="cancel-btn" onclick="closeDetailsModal()">Close</button>
+                <button type="button" class="submit-btn" onclick="editEquipment()">Edit</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample equipment data
+        let equipmentData = [
+            {
+                pcNumber: 'PC-001',
+                category: 'Desktop',
+                icon: '🖥️',
+                location: 'Main Building, Floor 1, Room 101',
+                lastMaintenance: '4/15/2025',
+                status: 'Operational',
+                assignedUser: 'John Doe',
+                serialNumber: 'SN12345678',
+                purchaseDate: '2023-01-15',
+                notes: 'Standard office desktop with dual monitors.'
+            },
+            {
+                pcNumber: 'LP-045',
+                category: 'Laptop',
+                icon: '💻',
+                location: 'Main Building, Floor 2, Room 203',
+                lastMaintenance: '4/10/2025',
+                status: 'Operational',
+                assignedUser: 'Jane Smith',
+                serialNumber: 'SN87654321',
+                purchaseDate: '2023-03-22',
+                notes: 'Executive laptop with docking station.'
+            },
+            {
+                pcNumber: 'PR-012',
+                category: 'Printer',
+                icon: '🖨️',
+                location: 'Main Building, Floor 1, Room 105',
+                lastMaintenance: '4/05/2025',
+                status: 'Maintenance',
+                assignedUser: 'IT Department',
+                serialNumber: 'SN55667788',
+                purchaseDate: '2022-11-10',
+                notes: 'Color laser printer for marketing department.'
+            },
+            {
+                pcNumber: 'RT-008',
+                category: 'Router',
+                icon: '🌐',
+                location: 'Main Building, Floor 3, Server Room',
+                lastMaintenance: '3/28/2025',
+                status: 'Operational',
+                assignedUser: 'Network Team',
+                serialNumber: 'SN11223344',
+                purchaseDate: '2022-08-05',
+                notes: 'Main router for 3rd floor.'
+            },
+            {
+                pcNumber: 'PC-078',
+                category: 'Desktop',
+                icon: '🖥️',
+                location: 'Annex Building, Floor 1, Room 12',
+                lastMaintenance: '3/15/2025',
+                status: 'Offline',
+                assignedUser: 'Peter Jones',
+                serialNumber: 'SN99887766',
+                purchaseDate: '2022-05-20',
+                notes: 'Needs hardware upgrade.'
+            }
+        ];
+
+        // Check authentication on page load
+        function checkAuth() {
+            const isLoggedIn = localStorage.getItem('ictLoggedIn');
+            const username = localStorage.getItem('ictUsername');
+            
+            if (!isLoggedIn || isLoggedIn !== 'true') {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            if (username) {
+                document.getElementById('username').textContent = username;
+                document.getElementById('userAvatar').textContent = username.charAt(0).toUpperCase();
+            }
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('ictLoggedIn');
+            localStorage.removeItem('ictUsername');
+            localStorage.removeItem('ictLoginTime');
+            window.location.href = 'login.html';
+        }
+
+        // Populate equipment table
+        function populateTable(data = equipmentData) {
+            const tableBody = document.getElementById('equipmentTableBody');
+            tableBody.innerHTML = '';
+
+            if (data.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="6" style="text-align: center; padding: 2rem;">No equipment found matching your criteria.</td>`;
+                tableBody.appendChild(row);
+                return;
+            }
+
+            data.forEach(equipment => {
+                const row = document.createElement('tr');
+                
+                // Status class based on equipment status
+                let statusClass = '';
+                switch(equipment.status) {
+                    case 'Operational':
+                        statusClass = 'status-operational';
+                        break;
+                    case 'Maintenance':
+                        statusClass = 'status-maintenance';
+                        break;
+                    case 'Offline':
+                        statusClass = 'status-offline';
+                        break;
+                }
+
+                row.innerHTML = `
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span>${equipment.icon || '📦'}</span>
+                            <span class="pc-number">${equipment.pcNumber}</span>
+                        </div>
+                    </td>
+                    <td>${equipment.category}</td>
+                    <td>${equipment.location}</td>
+                    <td>${equipment.lastMaintenance || 'N/A'}</td>
+                    <td><span class="status-badge ${statusClass}">${equipment.status}</span></td>
+                    <td class="actions">
+                        <button class="action-btn" onclick="viewEquipmentDetails('${equipment.pcNumber}')" title="View Details">
+                            🔍
+                        </button>
+                        <button class="action-btn" onclick="window.location.href='maintenance-logs.html?equipment=${equipment.pcNumber}'" title="View Maintenance History">
+                            🔧
+                        </button>
+                        <button class="action-btn" onclick="window.location.href='qr-generator.html?equipment=${equipment.pcNumber}'" title="Generate QR Code">
+                            📱
+                        </button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Filter equipment data
+        function filterEquipment() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            
+            const filteredData = equipmentData.filter(equipment => {
+                const matchesSearch = 
+                    equipment.pcNumber.toLowerCase().includes(searchTerm) ||
+                    equipment.category.toLowerCase().includes(searchTerm) ||
+                    equipment.location.toLowerCase().includes(searchTerm) ||
+                    (equipment.assignedUser && equipment.assignedUser.toLowerCase().includes(searchTerm));
+                
+                const matchesCategory = categoryFilter === '' || equipment.category === categoryFilter;
+                const matchesStatus = statusFilter === '' || equipment.status === statusFilter;
+                
+                return matchesSearch && matchesCategory && matchesStatus;
+            });
+            
+            populateTable(filteredData);
+        }
+
+        // Add event listeners for search and filters
+        document.getElementById('searchInput').addEventListener('input', filterEquipment);
+        document.getElementById('categoryFilter').addEventListener('change', filterEquipment);
+        document.getElementById('statusFilter').addEventListener('change', filterEquipment);
+
+        // Open add equipment modal
+        function openAddModal() {
+            document.getElementById('addEquipmentModal').style.display = 'block';
+            document.getElementById('addEquipmentForm').reset();
+        }
+
+        // Close add equipment modal
+        function closeAddModal() {
+            document.getElementById('addEquipmentModal').style.display = 'none';
+        }
+
+        // Handle add equipment form submission
+        document.getElementById('addEquipmentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const pcNumber = document.getElementById('pcNumber').value;
+            const category = document.getElementById('category').value;
+            const location = document.getElementById('location').value;
+            const assignedUser = document.getElementById('assignedUser').value;
+            const status = document.getElementById('status').value;
+            const serialNumber = document.getElementById('serialNumber').value;
+            const purchaseDate = document.getElementById('purchaseDate').value;
+            const notes = document.getElementById('notes').value;
+            
+            // Check if PC number already exists
+            if (equipmentData.some(eq => eq.pcNumber === pcNumber)) {
+                alert('Equipment with this PC number already exists. Please use a unique identifier.');
+                return;
+            }
+            
+            // Determine icon based on category
+            let icon = '📦';
+            switch(category) {
+                case 'Desktop':
+                    icon = '🖥️';
+                    break;
+                case 'Laptop':
+                    icon = '💻';
+                    break;
+                case 'Printer':
+                    icon = '🖨️';
+                    break;
+                case 'Router':
+                    icon = '🌐';
+                    break;
+                case 'Switch':
+                    icon = '🔌';
+                    break;
+                case 'Scanner':
+                    icon = '📠';
+                    break;
+            }
+            
+            // Create new equipment object
+            const newEquipment = {
+                pcNumber,
+                category,
+                icon,
+                location,
+                lastMaintenance: 'N/A',
+                status,
+                assignedUser,
+                serialNumber,
+                purchaseDate,
+                notes
+            };
+            
+            // Add to equipment data
+            equipmentData.unshift(newEquipment);
+            
+            // Update table
+            populateTable();
+            
+            // Close modal
+            closeAddModal();
+            
+            // Show success message
+            alert(`Equipment ${pcNumber} has been added successfully.`);
+        });
+
+        // View equipment details
+        function viewEquipmentDetails(pcNumber) {
+            const equipment = equipmentData.find(eq => eq.pcNumber === pcNumber);
+            
+            if (!equipment) return;
+            
+            document.getElementById('detailsTitle').textContent = `${equipment.pcNumber} Details`;
+            
+            const detailsContainer = document.getElementById('equipmentDetails');
+            detailsContainer.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div style="font-size: 3rem;">${equipment.icon}</div>
+                    <div>
+                        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.25rem;">${equipment.category}</h3>
+                        <span class="status-badge ${equipment.status === 'Operational' ? 'status-operational' : equipment.status === 'Maintenance' ? 'status-maintenance' : 'status-offline'}">${equipment.status}</span>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <div>
+                        <p style="font-weight: 500; color: #6b7280; margin-bottom: 0.25rem;">PC/Equipment Number</p>
+                        <p>${equipment.pcNumber}</p>
+                    </div>
+                    <div>
+                        <p style="font-weight: 500; color: #6b7280; margin-bottom: 0.25rem;">Serial Number</p>
+                        <p>${equipment.serialNumber || 'N/A'}</p>
+                    </div>
+                    <div>
+                        <p style="font-weight: 500; color: #6b7280; margin-bottom: 0.25rem;">Location</p>
+                        <p>${equipment.location}</p>
+                    </div>
+                    <div>
+                        <p style="font-weight: 500; color: #6b7280; margin-bottom: 0.25rem;">Assigned User</p>
+                        <p>${equipment.assignedUser || 'N/A'}</p>
+                    </div>
+                    <div>
+                        <p style="font-weight: 500; color: #6b7280; margin-bottom: 0.25rem;">Last Maintenance</p>
+                        <p>${equipment.lastMaintenance || 'N/A'}</p>
+                    </div>
+                    <div>
+                        <p style="font-weight: 500; color: #6b7280; margin-bottom: 0.25rem;">Purchase Date</p>
+                        <p>${equipment.purchaseDate || 'N/A'}</p>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <p style="font-weight: 500; color: #6b7280; margin-bottom: 0.25rem;">Notes</p>
+                    <p>${equipment.notes || 'No notes available.'}</p>
+                </div>
+                
+                <div style="display: flex; gap: 1rem;">
+                    <button class="action-btn" style="padding: 0.5rem 1rem; background: #f3f4f6; border-radius: 6px;" onclick="window.location.href='maintenance-logs.html?equipment=${equipment.pcNumber}'">
+                        🔧 View Maintenance History
+                    </button>
+                    <button class="action-btn" style="padding: 0.5rem 1rem; background: #f3f4f6; border-radius: 6px;" onclick="window.location.href='qr-generator.html?equipment=${equipment.pcNumber}'">
+                        📱 Generate QR Code
+                    </button>
+                </div>
+            `;
+            
+            document.getElementById('equipmentDetailsModal').style.display = 'block';
+        }
+
+        // Close equipment details modal
+        function closeDetailsModal() {
+            document.getElementById('equipmentDetailsModal').style.display = 'none';
+        }
+
+        // Edit equipment (placeholder function)
+        function editEquipment() {
+            alert('Edit functionality would be implemented here.');
+            closeDetailsModal();
+        }
+
+        // Check for search filter from URL
+        function checkSearchFilter() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const searchFilter = urlParams.get('search');
+
+            if (searchFilter) {
+                document.getElementById('searchInput').value = searchFilter;
+                filterEquipment();
+
+                // Highlight the filtered equipment
+                setTimeout(() => {
+                    const rows = document.querySelectorAll('tbody tr');
+                    rows.forEach(row => {
+                        const pcNumber = row.querySelector('.pc-number')?.textContent;
+                        if (pcNumber === searchFilter) {
+                            row.style.backgroundColor = '#f0fdf4';
+                            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    });
+                }, 100);
+            }
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        };
+
+        // Initialize page
+        checkAuth();
+        populateTable();
+        checkSearchFilter();
+    </script>
+</body>
+</html>

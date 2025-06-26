@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator - ICT Services Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        .header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .logo::before {
+            content: "⚙️";
+            font-size: 1.2rem;
+        }
+
+        .nav {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav a {
+            text-decoration: none;
+            color: #6b7280;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav a:hover, .nav a.active {
+            color: #111827;
+        }
+
+        .user-menu {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #111827;
+            font-weight: 500;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #10b981;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .logout-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: #6b7280;
+            font-size: 1rem;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 2rem;
+        }
+
+        .tab {
+            padding: 1rem 2rem;
+            cursor: pointer;
+            font-weight: 500;
+            color: #6b7280;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            margin-right: 0.5rem;
+        }
+
+        .tab.active {
+            color: #111827;
+            background: white;
+            border-bottom: 1px solid white;
+            margin-bottom: -1px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            padding: 2rem;
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-subtitle {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            background: white;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1rem;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: #6b7280;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .generate-btn:hover {
+            background: #4b5563;
+        }
+
+        .qr-result {
+            margin-top: 2rem;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .qr-code {
+            width: 200px;
+            height: 200px;
+            border: 1px solid #e5e7eb;
+            padding: 1rem;
+            background: white;
+        }
+
+        .qr-info {
+            text-align: center;
+        }
+
+        .qr-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .qr-details {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .download-btn {
+            padding: 0.5rem 1rem;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .download-btn:hover {
+            background: #059669;
+        }
+
+        .batch-form {
+            margin-bottom: 2rem;
+        }
+
+        .batch-options {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .file-input-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .file-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            border: 1px dashed #d1d5db;
+            border-radius: 8px;
+            background: #f9fafb;
+            color: #6b7280;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .file-input-label:hover {
+            border-color: #10b981;
+            color: #10b981;
+        }
+
+        @media (max-width: 768px) {
+            .nav {
+                display: none;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">ICT Services Management System</div>
+        <nav class="nav">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="equipment.html">Equipment</a>
+            <a href="maintenance-logs.html">Maintenance Logs</a>
+            <a href="qr-generator.html" class="active">QR Generator</a>
+        </nav>
+        <div class="user-menu">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <span id="username">Admin</span>
+            </div>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="page-header">
+            <h1 class="page-title">QR Code Generator</h1>
+            <p class="page-subtitle">Generate QR codes for equipment tracking</p>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="single">Single Equipment</div>
+            <div class="tab" data-tab="batch">Batch Generation</div>
+        </div>
+
+        <div id="single-tab" class="tab-content active">
+            <div class="form-container">
+                <h2 class="form-title">Generate QR Code</h2>
+                <p class="form-subtitle">Enter equipment details to generate a QR code</p>
+
+                <form id="single-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="equipment-id" class="form-label">PC/Equipment Number</label>
+                            <input 
+                                type="text" 
+                                id="equipment-id" 
+                                class="form-input" 
+                                placeholder="e.g. PC-001"
+                                required
+                            >
+                        </div>
+                        <div class="form-group">
+                            <label for="category" class="form-label">Category</label>
+                            <select id="category" class="form-select" required>
+                                <option value="" disabled selected>Select category</option>
+                                <option value="Desktop">Desktop</option>
+                                <option value="Laptop">Laptop</option>
+                                <option value="Printer">Printer</option>
+                                <option value="Router">Router</option>
+                                <option value="Switch">Switch</option>
+                                <option value="Access Point">Access Point</option>
+                                <option value="Scanner">Scanner</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="building" class="form-label">Building</label>
+                            <input 
+                                type="text" 
+                                id="building" 
+                                class="form-input" 
+                                placeholder="e.g. Main Building"
+                                required
+                            >
+                        </div>
+                        <div class="form-group">
+                            <label for="floor" class="form-label">Floor</label>
+                            <input 
+                                type="text" 
+                                id="floor" 
+                                class="form-input" 
+                                placeholder="e.g. 1"
+                                required
+                            >
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="room" class="form-label">Room</label>
+                        <input 
+                            type="text" 
+                            id="room" 
+                            class="form-input" 
+                            placeholder="e.g. 101"
+                            required
+                        >
+                    </div>
+
+                    <button type="submit" class="generate-btn">
+                        <span>📱</span>
+                        Generate QR Code
+                    </button>
+                </form>
+
+                <div id="qr-result" class="qr-result">
+                    <div id="qr-code" class="qr-code"></div>
+                    <div class="qr-info">
+                        <div id="qr-title" class="qr-title">PC-001 (Desktop)</div>
+                        <div id="qr-details" class="qr-details">Main Building, Floor 1, Room 101</div>
+                    </div>
+                    <button id="download-btn" class="download-btn">
+                        <span>⬇️</span>
+                        Download QR Code
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="batch-tab" class="tab-content">
+            <div class="form-container">
+                <h2 class="form-title">Batch QR Code Generation</h2>
+                <p class="form-subtitle">Generate multiple QR codes at once</p>
+
+                <form id="batch-form" class="batch-form">
+                    <div class="batch-options">
+                        <div class="form-group" style="flex: 1;">
+                            <label class="form-label">Upload CSV File</label>
+                            <div class="file-input-container">
+                                <input type="file" id="csv-file" class="file-input" accept=".csv">
+                                <label for="csv-file" class="file-input-label">
+                                    <span>📄</span>
+                                    Choose CSV file or drag and drop
+                                </label>
+                            </div>
+                            <p style="font-size: 0.75rem; color: #6b7280; margin-top: 0.5rem;">
+                                CSV should contain columns: ID, Category, Building, Floor, Room
+                            </p>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="generate-btn">
+                        <span>📱</span>
+                        Generate Batch QR Codes
+                    </button>
+                </form>
+
+                <div id="batch-result" style="display: none; margin-top: 2rem;">
+                    <h3 style="margin-bottom: 1rem;">Generated QR Codes</h3>
+                    <div id="batch-qr-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+                        <!-- QR codes will be added here -->
+                    </div>
+                    <button id="download-all-btn" class="download-btn" style="margin-top: 1.5rem;">
+                        <span>⬇️</span>
+                        Download All QR Codes (ZIP)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Check authentication on page load
+        function checkAuth() {
+            const isLoggedIn = localStorage.getItem('ictLoggedIn');
+            const username = localStorage.getItem('ictUsername');
+            
+            if (!isLoggedIn || isLoggedIn !== 'true') {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            if (username) {
+                document.getElementById('username').textContent = username;
+                document.getElementById('userAvatar').textContent = username.charAt(0).toUpperCase();
+            }
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('ictLoggedIn');
+            localStorage.removeItem('ictUsername');
+            localStorage.removeItem('ictLoginTime');
+            window.location.href = 'login.html';
+        }
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs and tab contents
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding content
+                tab.classList.add('active');
+                document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
+            });
+        });
+
+        // Single QR code generation
+        document.getElementById('single-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const equipmentId = document.getElementById('equipment-id').value;
+            const category = document.getElementById('category').value;
+            const building = document.getElementById('building').value;
+            const floor = document.getElementById('floor').value;
+            const room = document.getElementById('room').value;
+            
+            // Create QR code data
+            const qrData = JSON.stringify({
+                id: equipmentId,
+                category: category,
+                location: {
+                    building: building,
+                    floor: floor,
+                    room: room
+                },
+                timestamp: new Date().toISOString()
+            });
+            
+            // Generate QR code
+            const qrCodeElement = document.getElementById('qr-code');
+            qrCodeElement.innerHTML = '';
+            
+            new QRCode(qrCodeElement, {
+                text: qrData,
+                width: 180,
+                height: 180,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            
+            // Update QR info
+            document.getElementById('qr-title').textContent = `${equipmentId} (${category})`;
+            document.getElementById('qr-details').textContent = `${building}, Floor ${floor}, Room ${room}`;
+            
+            // Show result
+            document.getElementById('qr-result').style.display = 'flex';
+        });
+
+        // Download QR code
+        document.getElementById('download-btn').addEventListener('click', function() {
+            const qrCanvas = document.querySelector('#qr-code canvas');
+            const equipmentId = document.getElementById('equipment-id').value;
+            
+            if (qrCanvas) {
+                const link = document.createElement('a');
+                link.download = `QR_${equipmentId}.png`;
+                link.href = qrCanvas.toDataURL('image/png');
+                link.click();
+            }
+        });
+
+        // Batch QR code generation
+        document.getElementById('batch-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('csv-file');
+            
+            if (fileInput.files.length === 0) {
+                alert('Please select a CSV file');
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const csvData = e.target.result;
+                processCsvData(csvData);
+            };
+            
+            reader.readAsText(file);
+        });
+
+        // Process CSV data and generate batch QR codes
+        function processCsvData(csvData) {
+            // Simple CSV parsing (in a real app, use a proper CSV parser)
+            const rows = csvData.split('\n');
+            const header = rows[0].split(',');
+            
+            // Clear previous results
+            const batchContainer = document.getElementById('batch-qr-container');
+            batchContainer.innerHTML = '';
+            
+            // Process each row (skip header)
+            for (let i = 1; i < rows.length; i++) {
+                if (rows[i].trim() === '') continue;
+                
+                const columns = rows[i].split(',');
+                if (columns.length < 5) continue;
+                
+                const equipmentId = columns[0].trim();
+                const category = columns[1].trim();
+                const building = columns[2].trim();
+                const floor = columns[3].trim();
+                const room = columns[4].trim();
+                
+                // Create QR code data
+                const qrData = JSON.stringify({
+                    id: equipmentId,
+                    category: category,
+                    location: {
+                        building: building,
+                        floor: floor,
+                        room: room
+                    },
+                    timestamp: new Date().toISOString()
+                });
+                
+                // Create QR code container
+                const qrContainer = document.createElement('div');
+                qrContainer.style.border = '1px solid #e5e7eb';
+                qrContainer.style.borderRadius = '8px';
+                qrContainer.style.padding = '1rem';
+                qrContainer.style.background = 'white';
+                qrContainer.style.display = 'flex';
+                qrContainer.style.flexDirection = 'column';
+                qrContainer.style.alignItems = 'center';
+                qrContainer.style.gap = '0.5rem';
+                
+                // Create QR code element
+                const qrElement = document.createElement('div');
+                qrContainer.appendChild(qrElement);
+                
+                // Generate QR code
+                new QRCode(qrElement, {
+                    text: qrData,
+                    width: 120,
+                    height: 120,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+                
+                // Add equipment info
+                const infoElement = document.createElement('div');
+                infoElement.style.textAlign = 'center';
+                infoElement.innerHTML = `
+                    <div style="font-weight: 600; font-size: 0.875rem;">${equipmentId}</div>
+                    <div style="color: #6b7280; font-size: 0.75rem;">${category}</div>
+                `;
+                qrContainer.appendChild(infoElement);
+                
+                // Add download button
+                const downloadBtn = document.createElement('button');
+                downloadBtn.textContent = 'Download';
+                downloadBtn.style.padding = '0.25rem 0.5rem';
+                downloadBtn.style.fontSize = '0.75rem';
+                downloadBtn.style.background = '#10b981';
+                downloadBtn.style.color = 'white';
+                downloadBtn.style.border = 'none';
+                downloadBtn.style.borderRadius = '4px';
+                downloadBtn.style.cursor = 'pointer';
+                downloadBtn.onclick = function() {
+                    const canvas = qrElement.querySelector('canvas');
+                    if (canvas) {
+                        const link = document.createElement('a');
+                        link.download = `QR_${equipmentId}.png`;
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                    }
+                };
+                qrContainer.appendChild(downloadBtn);
+                
+                // Add to batch container
+                batchContainer.appendChild(qrContainer);
+            }
+            
+            // Show batch result
+            document.getElementById('batch-result').style.display = 'block';
+        }
+
+        // Download all QR codes as ZIP
+        document.getElementById('download-all-btn').addEventListener('click', function() {
+            alert('This feature would download all QR codes as a ZIP file. In a real implementation, this would use a library like JSZip to create and download a ZIP file containing all the QR code images.');
+        });
+
+        // Check for equipment ID from URL
+        function checkEquipmentParam() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const equipmentId = urlParams.get('equipment');
+            
+            if (equipmentId) {
+                document.getElementById('equipment-id').value = equipmentId;
+                
+                // If we have equipment data, we could auto-fill other fields
+                const equipment = findEquipmentById(equipmentId);
+                if (equipment) {
+                    document.getElementById('category').value = equipment.category || '';
+                    document.getElementById('building').value = equipment.location?.split(',')[0] || '';
+                    document.getElementById('floor').value = equipment.location?.split('Floor ')[1]?.split(',')[0] || '';
+                    document.getElementById('room').value = equipment.location?.split('Room ')[1] || '';
+                }
+            }
+        }
+
+        // Find equipment by ID (mock function)
+        function findEquipmentById(id) {
+            // This would normally fetch from your data source
+            const equipmentData = [
+                {
+                    pcNumber: 'PC-001',
+                    category: 'Desktop',
+                    location: 'Main Building, Floor 1, Room 101'
+                },
+                {
+                    pcNumber: 'LP-045',
+                    category: 'Laptop',
+                    location: 'Main Building, Floor 2, Room 203'
+                }
+            ];
+            
+            return equipmentData.find(eq => eq.pcNumber === id);
+        }
+
+        // Initialize page
+        checkAuth();
+        checkEquipmentParam();
+    </script>
+</body>
+</html>

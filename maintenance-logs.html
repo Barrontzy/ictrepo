@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maintenance Logs - ICT Services Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        .header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .logo::before {
+            content: "⚙️";
+            font-size: 1.2rem;
+        }
+
+        .nav {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav a {
+            text-decoration: none;
+            color: #6b7280;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav a:hover, .nav a.active {
+            color: #111827;
+        }
+
+        .user-menu {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #111827;
+            font-weight: 500;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #10b981;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .logout-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .add-btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .add-btn:hover {
+            background: #059669;
+        }
+
+        .search-filter {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .search-box {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.875rem;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+            font-size: 1rem;
+        }
+
+        .filter-dropdown {
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            background: white;
+        }
+
+        .logs-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .logs-table th {
+            background: #f9fafb;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .logs-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            color: #111827;
+        }
+
+        .logs-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .logs-table tr:hover {
+            background: #f9fafb;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-completed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-in-progress {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .priority-high {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .priority-medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .priority-low {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .action-btn {
+            padding: 0.5rem;
+            margin-right: 0.5rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #6b7280;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: #f3f4f6;
+            color: #111827;
+        }
+
+        .actions {
+            white-space: nowrap;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 2rem auto;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 700px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #6b7280;
+        }
+
+        .close-btn:hover {
+            color: #111827;
+        }
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.875rem;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            background: white;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        .cancel-btn {
+            padding: 0.75rem 1.5rem;
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .cancel-btn:hover {
+            background: #e5e7eb;
+        }
+
+        .submit-btn {
+            padding: 0.75rem 1.5rem;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .submit-btn:hover {
+            background: #059669;
+        }
+
+        .task-icon {
+            font-size: 1.2rem;
+            margin-right: 0.5rem;
+        }
+
+        .equipment-link {
+            color: #10b981;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .equipment-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .nav {
+                display: none;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-filter {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">ICT Services Management System</div>
+        <nav class="nav">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="equipment.html">Equipment</a>
+            <a href="maintenance-logs.html" class="active">Maintenance Logs</a>
+            <a href="qr-generator.html">QR Generator</a>
+        </nav>
+        <div class="user-menu">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <span id="username">Admin</span>
+            </div>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="page-header">
+            <h1 class="page-title">Maintenance Logs</h1>
+            <button class="add-btn" onclick="openAddTaskModal()">
+                <span>➕</span>
+                New Task
+            </button>
+        </div>
+
+        <div class="search-filter">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" class="search-input" placeholder="Search by task, equipment, technician...">
+            </div>
+            <select id="statusFilter" class="filter-dropdown">
+                <option value="">All Statuses</option>
+                <option value="Completed">Completed</option>
+                <option value="Pending">Pending</option>
+                <option value="In Progress">In Progress</option>
+            </select>
+            <select id="priorityFilter" class="filter-dropdown">
+                <option value="">All Priorities</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+            </select>
+            <select id="equipmentFilter" class="filter-dropdown">
+                <option value="">All Equipment</option>
+                <option value="PC-001">PC-001</option>
+                <option value="LP-045">LP-045</option>
+                <option value="PR-012">PR-012</option>
+                <option value="RT-008">RT-008</option>
+                <option value="PC-078">PC-078</option>
+            </select>
+        </div>
+
+        <table class="logs-table">
+            <thead>
+                <tr>
+                    <th>Task</th>
+                    <th>Equipment</th>
+                    <th>Technician</th>
+                    <th>Date</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="logsTableBody">
+                <!-- Maintenance logs will be inserted here -->
+            </tbody>
+        </table>
+    </main>
+
+    <!-- Add Task Modal -->
+    <div id="addTaskModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeAddTaskModal()">&times;</button>
+            <div class="modal-header">
+                <h2 class="modal-title">Add New Maintenance Task</h2>
+            </div>
+            <form id="addTaskForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="taskTitle" class="form-label">Task Title</label>
+                        <input type="text" id="taskTitle" class="form-input" placeholder="e.g. Software Update" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="equipmentId" class="form-label">Equipment ID</label>
+                        <select id="equipmentId" class="form-select" required>
+                            <option value="" disabled selected>Select equipment</option>
+                            <option value="PC-001">PC-001 (Desktop)</option>
+                            <option value="LP-045">LP-045 (Laptop)</option>
+                            <option value="PR-012">PR-012 (Printer)</option>
+                            <option value="RT-008">RT-008 (Router)</option>
+                            <option value="PC-078">PC-078 (Desktop)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="technician" class="form-label">Assigned Technician</label>
+                        <select id="technician" class="form-select" required>
+                            <option value="" disabled selected>Select technician</option>
+                            <option value="John Doe">John Doe</option>
+                            <option value="Jane Smith">Jane Smith</option>
+                            <option value="Mike Johnson">Mike Johnson</option>
+                            <option value="Sarah Williams">Sarah Williams</option>
+                            <option value="David Brown">David Brown</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="scheduledDate" class="form-label">Scheduled Date</label>
+                        <input type="date" id="scheduledDate" class="form-input" required>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="priority" class="form-label">Priority</label>
+                        <select id="priority" class="form-select" required>
+                            <option value="" disabled selected>Select priority</option>
+                            <option value="High">High</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Low">Low</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="status" class="form-label">Status</label>
+                        <select id="status" class="form-select" required>
+                            <option value="Pending" selected>Pending</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="taskType" class="form-label">Task Type</label>
+                    <select id="taskType" class="form-select" required>
+                        <option value="" disabled selected>Select task type</option>
+                        <option value="Software Update">Software Update</option>
+                        <option value="Hardware Replacement">Hardware Replacement</option>
+                        <option value="Cartridge Replacement">Cartridge Replacement</option>
+                        <option value="Configuration Update">Configuration Update</option>
+                        <option value="Disk Cleanup">Disk Cleanup</option>
+                        <option value="Virus Scan">Virus Scan</option>
+                        <option value="Network Setup">Network Setup</option>
+                        <option value="Preventive Maintenance">Preventive Maintenance</option>
+                        <option value="Repair">Repair</option>
+                        <option value="Installation">Installation</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea id="description" class="form-input" rows="4" placeholder="Detailed description of the maintenance task..."></textarea>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="estimatedDuration" class="form-label">Estimated Duration (hours)</label>
+                        <input type="number" id="estimatedDuration" class="form-input" placeholder="e.g. 2" min="0.5" step="0.5">
+                    </div>
+                    <div class="form-group">
+                        <label for="cost" class="form-label">Estimated Cost ($)</label>
+                        <input type="number" id="cost" class="form-input" placeholder="e.g. 150" min="0" step="0.01">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="cancel-btn" onclick="closeAddTaskModal()">Cancel</button>
+                    <button type="submit" class="submit-btn">Add Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Task Details Modal -->
+    <div id="taskDetailsModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeTaskDetailsModal()">&times;</button>
+            <div class="modal-header">
+                <h2 class="modal-title" id="taskDetailsTitle">Task Details</h2>
+            </div>
+            <div id="taskDetails">
+                <!-- Task details will be inserted here -->
+            </div>
+            <div class="form-actions">
+                <button type="button" class="cancel-btn" onclick="closeTaskDetailsModal()">Close</button>
+                <button type="button" class="submit-btn" onclick="editTask()">Edit Task</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample maintenance logs data
+        let maintenanceData = [
+            {
+                id: 'TASK-001',
+                title: 'Software Update',
+                equipmentId: 'PC-001',
+                equipmentType: 'Desktop',
+                technician: 'John Doe',
+                date: '2025-04-28',
+                priority: 'Medium',
+                status: 'Completed',
+                taskType: 'Software Update',
+                description: 'Updated Windows OS and security patches',
+                estimatedDuration: 2,
+                cost: 0,
+                icon: '💻'
+            },
+            {
+                id: 'TASK-002',
+                title: 'Hard Drive Replacement',
+                equipmentId: 'LP-045',
+                equipmentType: 'Laptop',
+                technician: 'Jane Smith',
+                date: '2025-04-27',
+                priority: 'High',
+                status: 'Completed',
+                taskType: 'Hardware Replacement',
+                description: 'Replaced failing 500GB HDD with 1TB SSD',
+                estimatedDuration: 3,
+                cost: 250,
+                icon: '💾'
+            },
+            {
+                id: 'TASK-003',
+                title: 'Cartridge Replacement',
+                equipmentId: 'PR-012',
+                equipmentType: 'Printer',
+                technician: 'Mike Johnson',
+                date: '2025-04-26',
+                priority: 'Low',
+                status: 'Completed',
+                taskType: 'Cartridge Replacement',
+                description: 'Replaced black and color cartridges',
+                estimatedDuration: 0.5,
+                cost: 85,
+                icon: '🖨️'
+            },
+            {
+                id: 'TASK-004',
+                title: 'Configuration Update',
+                equipmentId: 'RT-008',
+                equipmentType: 'Router',
+                technician: 'Sarah Williams',
+                date: '2025-04-25',
+                priority: 'Medium',
+                status: 'Pending',
+                taskType: 'Configuration Update',
+                description: 'Update firmware and security settings',
+                estimatedDuration: 1.5,
+                cost: 0,
+                icon: '🌐'
+            },
+            {
+                id: 'TASK-005',
+                title: 'Disk Cleanup',
+                equipmentId: 'PC-078',
+                equipmentType: 'Desktop',
+                technician: 'John Doe',
+                date: '2025-04-24',
+                priority: 'Low',
+                status: 'In Progress',
+                taskType: 'Disk Cleanup',
+                description: 'Clean temporary files and optimize storage',
+                estimatedDuration: 1,
+                cost: 0,
+                icon: '🧹'
+            }
+        ];
+
+        // Check authentication on page load
+        function checkAuth() {
+            const isLoggedIn = localStorage.getItem('ictLoggedIn');
+            const username = localStorage.getItem('ictUsername');
+            
+            if (!isLoggedIn || isLoggedIn !== 'true') {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            if (username) {
+                document.getElementById('username').textContent = username;
+                document.getElementById('userAvatar').textContent = username.charAt(0).toUpperCase();
+            }
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('ictLoggedIn');
+            localStorage.removeItem('ictUsername');
+            localStorage.removeItem('ictLoginTime');
+            window.location.href = 'login.html';
+        }
+
+        // Populate maintenance logs table
+        function populateTable(data = maintenanceData) {
+            const tableBody = document.getElementById('logsTableBody');
+            tableBody.innerHTML = '';
+
+            if (data.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="7" style="text-align: center; padding: 2rem;">No maintenance logs found matching your criteria.</td>`;
+                tableBody.appendChild(row);
+                return;
+            }
+
+            data.forEach(task => {
+                const row = document.createElement('tr');
+                
+                // Status class based on task status
+                let statusClass = '';
+                switch(task.status) {
+                    case 'Completed':
+                        statusClass = 'status-completed';
+                        break;
+                    case 'Pending':
+                        statusClass = 'status-pending';
+                        break;
+                    case 'In Progress':
+                        statusClass = 'status-in-progress';
+                        break;
+                }
+
+                // Priority class
+                let priorityClass = '';
+                switch(task.priority) {
+                    case 'High':
+                        priorityClass = 'priority-high';
+                        break;
+                    case 'Medium':
+                        priorityClass = 'priority-medium';
+                        break;
+                    case 'Low':
+                        priorityClass = 'priority-low';
+                        break;
+                }
+
+                row.innerHTML = `
+                    <td>
+                        <div style="display: flex; align-items: center;">
+                            <span class="task-icon">${task.icon}</span>
+                            <span>${task.title}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <a href="equipment.html?search=${task.equipmentId}" class="equipment-link">
+                            ${task.equipmentId}
+                        </a>
+                        <div style="font-size: 0.75rem; color: #6b7280;">${task.equipmentType}</div>
+                    </td>
+                    <td>${task.technician}</td>
+                    <td>${new Date(task.date).toLocaleDateString()}</td>
+                    <td><span class="status-badge ${priorityClass}">${task.priority}</span></td>
+                    <td><span class="status-badge ${statusClass}">${task.status}</span></td>
+                    <td class="actions">
+                        <button class="action-btn" onclick="viewTaskDetails('${task.id}')" title="View Details">
+                            🔍
+                        </button>
+                        <button class="action-btn" onclick="editTaskStatus('${task.id}')" title="Update Status">
+                            ✏️
+                        </button>
+                        <button class="action-btn" onclick="deleteTask('${task.id}')" title="Delete Task">
+                            🗑️
+                        </button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Filter maintenance logs
+        function filterLogs() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const priorityFilter = document.getElementById('priorityFilter').value;
+            const equipmentFilter = document.getElementById('equipmentFilter').value;
+            
+            const filteredData = maintenanceData.filter(task => {
+                const matchesSearch = 
+                    task.title.toLowerCase().includes(searchTerm) ||
+                    task.equipmentId.toLowerCase().includes(searchTerm) ||
+                    task.technician.toLowerCase().includes(searchTerm) ||
+                    task.description.toLowerCase().includes(searchTerm);
+                
+                const matchesStatus = statusFilter === '' || task.status === statusFilter;
+                const matchesPriority = priorityFilter === '' || task.priority === priorityFilter;
+                const matchesEquipment = equipmentFilter === '' || task.equipmentId === equipmentFilter;
+                
+                return matchesSearch && matchesStatus && matchesPriority && matchesEquipment;
+            });
+            
+            populateTable(filteredData);
+        }
+
+        // Add event listeners for search and filters
+        document.getElementById('searchInput').addEventListener('input', filterLogs);
+        document.getElementById('statusFilter').addEventListener('change', filterLogs);
+        document.getElementById('priorityFilter').addEventListener('change', filterLogs);
+        document.getElementById('equipmentFilter').addEventListener('change', filterLogs);
+
+        // Open add task modal
+        function openAddTaskModal() {
+            document.getElementById('addTaskModal').style.display = 'block';
+            document.getElementById('addTaskForm').reset();
+            
+            // Set default date to today
+            document.getElementById('scheduledDate').value = new Date().toISOString().split('T')[0];
+        }
+
+        // Close add task modal
+        function closeAddTaskModal() {
+            document.getElementById('addTaskModal').style.display = 'none';
+        }
+
+        // Handle add task form submission
+        document.getElementById('addTaskForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const taskTitle = document.getElementById('taskTitle').value;
+            const equipmentId = document.getElementById('equipmentId').value;
+            const technician = document.getElementById('technician').value;
+            const scheduledDate = document.getElementById('scheduledDate').value;
+            const priority = document.getElementById('priority').value;
+            const status = document.getElementById('status').value;
+            const taskType = document.getElementById('taskType').value;
+            const description = document.getElementById('description').value;
+            const estimatedDuration = parseFloat(document.getElementById('estimatedDuration').value) || 0;
+            const cost = parseFloat(document.getElementById('cost').value) || 0;
+            
+            // Get equipment type from equipment ID
+            const equipmentTypes = {
+                'PC-001': 'Desktop',
+                'LP-045': 'Laptop',
+                'PR-012': 'Printer',
+                'RT-008': 'Router',
+                'PC-078': 'Desktop'
+            };
+            
+            // Determine icon based on task type
+            let icon = '🔧';
+            switch(taskType) {
+                case 'Software Update':
+                    icon = '💻';
+                    break;
+                case 'Hardware Replacement':
+                    icon = '💾';
+                    break;
+                case 'Cartridge Replacement':
+                    icon = '🖨️';
+                    break;
+                case 'Configuration Update':
+                    icon = '🌐';
+                    break;
+                case 'Disk Cleanup':
+                    icon = '🧹';
+                    break;
+                case 'Virus Scan':
+                    icon = '🛡️';
+                    break;
+                case 'Network Setup':
+                    icon = '🔌';
+                    break;
+                case 'Preventive Maintenance':
+                    icon = '⚙️';
+                    break;
+                case 'Repair':
+                    icon = '🔨';
+                    break;
+                case 'Installation':
+                    icon = '📦';
+                    break;
+            }
+            
+            // Generate unique task ID
+            const taskId = 'TASK-' + String(maintenanceData.length + 1).padStart(3, '0');
+            
+            // Create new task object
+            const newTask = {
+                id: taskId,
+                title: taskTitle,
+                equipmentId,
+                equipmentType: equipmentTypes[equipmentId] || 'Unknown',
+                technician,
+                date: scheduledDate,
+                priority,
+                status,
+                taskType,
+                description,
+                estimatedDuration,
+                cost,
+                icon
+            };
+            
+            // Add to maintenance data
+            maintenanceData.unshift(newTask);
+            
+            // Update table
+            populateTable();
+            
+            // Close modal
+            closeAddTaskModal();
+            
+            // Show success message
+            alert(`Maintenance task "${taskTitle}" has been added successfully.`);
+        });
+
+        // View task details
+        function viewTaskDetails(taskId) {
+            const task = maintenanceData.find(t => t.id === taskId);
+            
+            if (!task) return;
+            
+            document.getElementById('taskDetailsTitle').textContent = `${task.title} - ${task.id}`;
+            
+            const detailsContainer = document.getElementById('taskDetails');
+            detailsContainer.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div style="font-size: 3rem;">${task.icon}</div>
+                    <div>
+                        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.25rem;">${task.title}</h3>
+                        <div style="display: flex; gap: 1rem;">
+                            <span class="status-badge ${task.status === 'Completed' ? 'status-completed' : task.status === 'Pending' ? 'status-pending' : 'status-in-progress'}">${task.status}</span>
+                            <span class="status-badge ${task.priority === 'High' ? 'priority-high' : task.priority === 'Medium' ? 'priority-medium' : 'priority-low'}">${task.priority} Priority</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <div>
+                        <p style="font-weight: 500; color: #6b7280; margin-bottom: 0.25rem;">Task ID</p>
+                        <p>${task.id}</p>
+                    </div>
+                    <div>
+                        <p style="font-weight: 500; color: #6b7280; margin-bottom: 0.25rem;">Task Type</p>
+                        <p>${task.taskType}</p>
+                    </div>
+                    <div>
+                        <p style="font-weight: 500; color: #6b7280; margin-bottom: 0.25rem;">Equipment</p>
+                        <p><a href="equipment.html?search=${task.equipmentId}" class="equipment-link">${task.equipmentId}</a> (${task.equipmentType})</p>
+                    </div>
+                    <div>
+                        <p style="font-weight: 500; color: #6b7280; margin-bottom: 0.25rem;">Assigned Technician</p>
+                        <p>${task.technician}</p>
+                    </div>
+                    <div>
+                        <p style="font-weight: 500; color: #6b7280; margin-bottom: 0.25rem;">Scheduled Date</p>
+                        <p>${new Date(task.date).toLocaleDateString()}</p>
+                    </div>
+                    <div>
+                        <p style="font-weight: 500; color: #6b7280; margin-bottom: 0.25rem;">Estimated Duration</p>
+                        <p>${task.estimatedDuration} hours</p>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <p style="font-weight: 500; color: #6b7280; margin-bottom: 0.25rem;">Description</p>
+                    <p>${task.description || 'No description provided.'}</p>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <p style="font-weight: 500; color: #6b7280; margin-bottom: 0.25rem;">Estimated Cost</p>
+                    <p>$${task.cost.toFixed(2)}</p>
+                </div>
+            `;
+            
+            document.getElementById('taskDetailsModal').style.display = 'block';
+        }
+
+        // Close task details modal
+        function closeTaskDetailsModal() {
+            document.getElementById('taskDetailsModal').style.display = 'none';
+        }
+
+        // Edit task status (simplified version)
+        function editTaskStatus(taskId) {
+            const task = maintenanceData.find(t => t.id === taskId);
+            if (!task) return;
+            
+            const newStatus = prompt(`Update status for "${task.title}":`, task.status);
+            if (newStatus && ['Pending', 'In Progress', 'Completed'].includes(newStatus)) {
+                task.status = newStatus;
+                populateTable();
+                alert('Task status updated successfully.');
+            }
+        }
+
+        // Delete task
+        function deleteTask(taskId) {
+            const task = maintenanceData.find(t => t.id === taskId);
+            if (!task) return;
+            
+            if (confirm(`Are you sure you want to delete the task "${task.title}"?`)) {
+                maintenanceData = maintenanceData.filter(t => t.id !== taskId);
+                populateTable();
+                alert('Task deleted successfully.');
+            }
+        }
+
+        // Edit task (placeholder function)
+        function editTask() {
+            alert('Edit task functionality would be implemented here.');
+            closeTaskDetailsModal();
+        }
+
+        // Check for equipment filter from URL
+        function checkEquipmentFilter() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const equipmentFilter = urlParams.get('equipment');
+
+            if (equipmentFilter) {
+                document.getElementById('equipmentFilter').value = equipmentFilter;
+                filterLogs();
+            }
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        };
+
+        // Initialize page
+        checkAuth();
+        populateTable();
+        checkEquipmentFilter();
+    </script>
+</body>
+</html>
