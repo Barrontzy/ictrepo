@@ -1,276 +1,247 @@
 <?php
-// Sample dynamic variables (can be replaced with database queries later)
 $totalEquipment = 245;
 $pendingTasks = 18;
-$completedTasks = 132;
-$equipmentCategories = 8;
+$inProgressTasks = 13;
+$completedTasks = 8;
 
 $tasks = [
   'To Do' => [
-    ['title' => 'Software Update', 'device' => 'PC-001 • Desktop', 'date' => '4/24/2025', 'user' => 'John Doe', 'priority' => 'medium'],
-    ['title' => 'Configuration Update', 'device' => 'RT-008 • Router', 'date' => '4/22/2025', 'user' => 'Sarah Williams', 'priority' => 'low'],
-    ['title' => 'Disk Cleanup', 'device' => 'PC-078 • Desktop', 'date' => '4/24/2025', 'user' => 'John Doe', 'priority' => 'low']
+    ['title' => 'Software Update', 'device' => 'PC-001 • Desktop', 'count' => 245, 'percent' => 25],
+    ['title' => 'Configuration Update', 'device' => 'RT-008 • Router', 'count' => 18, 'percent' => 26],
+    ['title' => 'Disk Cleanup', 'device' => 'PC-078 • Desktop', 'count' => 'low', 'percent' => 20]
   ],
   'In Progress' => [
-    ['title' => 'Hard Drive Replacement', 'device' => 'LP-045 • Laptop', 'date' => '4/24/2025', 'user' => 'Jane Smith', 'priority' => 'high'],
-    ['title' => 'Cartridge Replacement', 'device' => 'PR-012 • Printer', 'date' => '4/26/2025', 'user' => 'Mike Johnson', 'priority' => 'medium']
+    ['title' => 'Hard Drive Replacement', 'device' => 'LP-045 • Laptop', 'assignee' => 'Jane Smith'],
+    ['title' => 'Cartridge Replacement', 'device' => 'PR-012 • Printer', 'assignee' => 'Mike Johnson']
   ],
   'Completed' => [
-    ['title' => 'Port Configuration', 'device' => 'SW-075 • Switch', 'date' => '3/26/2025', 'user' => 'Mike Johnson', 'priority' => 'medium'],
-    ['title' => 'Signal Optimization', 'device' => 'AP-022 • Access Point', 'date' => '3/25/2025', 'user' => 'Sarah Williams', 'priority' => 'medium'],
-    ['title' => 'Driver Update', 'device' => 'SC-007 • Scanner', 'date' => '3/24/2025', 'user' => 'Jane Smith', 'priority' => 'low']
+    ['title' => 'Port Configuration', 'device' => 'SW-075 • Switch', 'progress' => 80],
+    ['title' => 'Driver Optimization', 'device' => 'SC-007 • Scanner', 'progress' => 50]
   ]
 ];
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Kanban Dashboard - ICT Services</title>
+  <meta charset="UTF-8">
+  <title>Kanban Dashboard</title>
   <style>
     body {
-      background: linear-gradient(15deg, rgba(0, 0, 0, 0.65) 0%, rgba(201, 44, 44, 0.65) 47%, rgba(244, 162, 97, 0.65) 100%);
-      font-family: sans-serif;
-      color: #1f2937;
       margin: 0;
-      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f9fafb;
+      color: #111827;
+    }
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 2rem;
     }
     .header {
-      background-color: #fff;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1rem 2rem;
+      margin-bottom: 2rem;
     }
-    .logo {
-      font-weight: bold;
-      font-size: 1.25rem;
+    .header h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
     }
-    .nav a {
-      margin-left: 1rem;
+    .header nav a {
+      margin-left: 1.25rem;
+      font-size: 0.95rem;
       text-decoration: none;
-      color: #1f2937;
-      font-size: 0.875rem;
+      color: #2563eb;
     }
-    .sign-in {
-      padding: 0.25rem 1rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      background-color: #f1f1f1;
-    }
-    .main {
-      padding: 2rem;
-    }
-    .dashboard-header h2 {
-      font-size: 1.5rem;
-      font-weight: 600;
-    }
-    .dashboard-header p {
-      font-size: 0.875rem;
-      color: #6b7280;
-    }
-    .stats {
+
+    .grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1rem;
-      margin-top: 1.5rem;
-    }
-    .stat-card {
-      background-color: #fff;
-      padding: 1rem;
-      border-radius: 0.5rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-    .label {
-      font-size: 0.875rem;
-      color: #6b7280;
-    }
-    .count {
-      font-size: 1.5rem;
-      font-weight: bold;
-    }
-    .trend {
-      font-size: 0.875rem;
-    }
-    .positive {
-      color: #10b981;
-    }
-    .negative {
-      color: #ef4444;
-    }
-    .sub-label {
-      font-size: 0.75rem;
-      color: #6b7280;
-    }
-    .kanban {
-      margin-top: 2rem;
-    }
-    .kanban h3 {
-      font-size: 1.125rem;
-      font-weight: 600;
-      margin-bottom: 1rem;
-    }
-    .kanban-columns {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 1.5rem;
+      margin-bottom: 2rem;
     }
-    .kanban-column {
-      background-color: #fff;
-      padding: 1rem;
+
+    .card {
+      background: #ffffff;
       border-radius: 0.5rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      padding: 1.25rem;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     }
-    .kanban-header {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 1rem;
+
+    .card h2 {
+      font-size: 2rem;
+      font-weight: bold;
+      margin: 0;
     }
-    .count-badge {
-      background-color: #e5e7eb;
-      padding: 0.25rem 0.5rem;
-      border-radius: 9999px;
-      font-size: 0.75rem;
-    }
-    .task {
-      background-color: #f9fafb;
-      padding: 0.75rem;
-      border: 1px solid #e5e7eb;
-      border-radius: 0.375rem;
-      margin-bottom: 1rem;
-    }
-    .task-title {
-      font-size: 0.875rem;
-      font-weight: 500;
-    }
-    .task-meta {
-      font-size: 0.75rem;
+
+    .card p {
+      margin: 0.25rem 0;
+      font-size: 0.9rem;
       color: #6b7280;
     }
-    .priority {
-      display: inline-block;
-      font-size: 0.75rem;
-      padding: 0.25rem 0.5rem;
-      border-radius: 0.375rem;
-      margin-top: 0.5rem;
+
+    .task-section {
+      margin-bottom: 2rem;
     }
-    .priority.low {
-      background-color: #d1fae5;
-      color: #065f46;
+
+    .task-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
     }
-    .priority.medium {
-      background-color: #fef3c7;
-      color: #92400e;
-    }
-    .priority.high {
-      background-color: #fee2e2;
-      color: #991b1b;
-    }
-    .actions {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1rem;
-      margin-top: 2rem;
-    }
-    .action {
-      background-color: #fff;
-      padding: 1rem;
+
+    .task-list {
+      background: #fff;
       border-radius: 0.5rem;
-      text-align: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      padding: 1rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      margin-bottom: 1rem;
     }
-    .action-title {
+
+    .task {
+      margin-bottom: 1rem;
+    }
+
+    .task .title {
       font-weight: 600;
       margin-bottom: 0.25rem;
     }
-    .action-desc {
-      font-size: 0.875rem;
+
+    .progress-bar {
+      background-color: #e5e7eb;
+      height: 6px;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .progress {
+      height: 100%;
+      background-color: #3b82f6;
+    }
+
+    .footer-actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+
+    .action-box {
+      text-align: center;
+      background: white;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .action-box p {
+      font-size: 0.85rem;
       color: #6b7280;
+    }
+
+    .action-box strong {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      color: #111827;
     }
   </style>
 </head>
 <body>
-  <header class="header">
-    <h1 class="logo">ICT Services Management System</h1>
-    <nav class="nav">
-      <a href="sample.php">Dashboard</a>
-      <a href="#">Equipment</a>
-      <a href="#">Maintenance Logs</a>
-      <a href="#">QR Generator</a>
-      <a href="login.php" class="sign-in">Sign In</a>
-    </nav>
-  </header>
-
-  <main class="main">
-    <div class="dashboard-header">
-      <h2>Kanban Dashboard</h2>
-      <p>Manage and track maintenance tasks</p>
+  <div class="container">
+    <div class="header">
+      <h1>Kanban Dashboard</h1>
+      <nav>
+        <a href="#">Dashboard</a>
+        <a href="#">Help</a>
+        <a href="#">Sign In</a>
+      </nav>
     </div>
 
-    <div class="stats">
-      <div class="stat-card">
-        <p class="label">Total Equipment</p>
-        <p class="count"><?= $totalEquipment ?></p>
-        <p class="trend positive">+12 from last month</p>
+    <div class="grid">
+      <div class="card">
+        <h2><?= $totalEquipment ?></h2>
+        <p>Total Equipment</p>
+        <p style="color: #10b981;">+12.5% from last month</p>
       </div>
-      <div class="stat-card">
-        <p class="label">Pending Tasks</p>
-        <p class="count"><?= $pendingTasks ?></p>
-        <p class="trend negative">-3 from last week</p>
+      <div class="card">
+        <h2><?= $pendingTasks ?></h2>
+        <p>Pending Tasks</p>
+        <p style="color: #ef4444;">-1 from previous</p>
       </div>
-      <div class="stat-card">
-        <p class="label">Completed Tasks</p>
-        <p class="count"><?= $completedTasks ?></p>
-        <p class="trend positive">+28 this month</p>
+      <div class="card">
+        <h2><?= $inProgressTasks ?></h2>
+        <p>In Progress</p>
+        <p>Items need attention</p>
       </div>
-      <div class="stat-card">
-        <p class="label">Equipment Categories</p>
-        <p class="count"><?= $equipmentCategories ?></p>
-        <p class="sub-label">Laptops, Desktops, Printers, etc.</p>
+      <div class="card">
+        <h2><?= $completedTasks ?></h2>
+        <p>Completed</p>
+        <p>Need data entry</p>
       </div>
     </div>
 
-    <div class="kanban">
-      <h3>Task Board</h3>
-      <div class="kanban-columns">
-        <?php foreach ($tasks as $columnName => $taskList): ?>
-          <div class="kanban-column">
-            <div class="kanban-header">
-              <h4><?= $columnName ?></h4>
-              <span class="count-badge"><?= count($taskList) ?></span>
-            </div>
-            <?php foreach ($taskList as $task): ?>
-              <div class="task">
-                <p class="task-title"><?= $task['title'] ?></p>
-                <p class="task-meta"><?= $task['device'] ?></p>
-                <p class="task-meta"><?= $task['date'] ?> • <?= $task['user'] ?></p>
-                <span class="priority <?= $task['priority'] ?>"><?= ucfirst($task['priority']) ?></span>
+    <div class="task-section">
+      <h3 class="task-title">Task Board</h3>
+      <div class="grid">
+        <!-- To-Do Column -->
+        <div class="task-list">
+          <h4>To Do</h4>
+          <?php foreach ($tasks['To Do'] as $task): ?>
+            <div class="task">
+              <div class="title"><?= $task['title'] ?></div>
+              <small><?= $task['device'] ?></small>
+              <div class="progress-bar">
+                <div class="progress" style="width: <?= $task['percent'] ?>%;"></div>
               </div>
-            <?php endforeach; ?>
-          </div>
-        <?php endforeach; ?>
+            </div>
+          <?php endforeach; ?>
+        </div>
+
+        <!-- In Progress Column -->
+        <div class="task-list">
+          <h4>In Progress</h4>
+          <?php foreach ($tasks['In Progress'] as $task): ?>
+            <div class="task">
+              <div class="title"><?= $task['title'] ?></div>
+              <small><?= $task['device'] ?> • <?= $task['assignee'] ?></small>
+            </div>
+          <?php endforeach; ?>
+        </div>
+
+        <!-- Completed Column -->
+        <div class="task-list">
+          <h4>Completed</h4>
+          <?php foreach ($tasks['Completed'] as $task): ?>
+            <div class="task">
+              <div class="title"><?= $task['title'] ?></div>
+              <small><?= $task['device'] ?></small>
+              <div class="progress-bar">
+                <div class="progress" style="width: <?= $task['progress'] ?>%;"></div>
+              </div>
+            </div>
+          <?php endforeach; ?>
+        </div>
       </div>
     </div>
 
-    <div class="actions">
-      <div class="action">
-        <p class="action-title">Log Maintenance Task</p>
-        <p class="action-desc">Record a new maintenance or repair activity</p>
+    <div class="footer-actions">
+      <div class="action-box">
+        <strong>Log Maintenance Task</strong>
+        <p>Record a new maintenance or repair activity</p>
       </div>
-      <div class="action">
-        <p class="action-title">Add New Equipment</p>
-        <p class="action-desc">Register a new device in the inventory</p>
+      <div class="action-box">
+        <strong>Add New Equipment</strong>
+        <p>Register a new device in the inventory</p>
       </div>
-      <div class="action">
-        <p class="action-title">Generate QR Codes</p>
-        <p class="action-desc">Create QR codes for equipment tracking</p>
+      <div class="action-box">
+        <strong>Generate QR Codes</strong>
+        <p>Create QR codes for equipment tracking</p>
       </div>
-      <div class="action">
-        <p class="action-title">Search Equipment</p>
-        <p class="action-desc">Find equipment by PC number or category</p>
+      <div class="action-box">
+        <strong>Search Equipment</strong>
+        <p>Find equipment by PC number or category</p>
       </div>
     </div>
-  </main>
+  </div>
 </body>
 </html>
