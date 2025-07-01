@@ -873,7 +873,7 @@ if (isset($_GET['success'])) {
                     <div class="quick-action-desc">Advanced item search</div>
                 </a>
 
-                <a href="#" class="quick-action">
+                <a href="kanban.php" class="quick-action">
                     <div class="quick-action-icon" style="background: #ec4899;">
                         <i class="fas fa-chart-bar"></i>
                     </div>
