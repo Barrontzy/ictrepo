@@ -882,6 +882,14 @@ if (isset($_GET['success'])) {
                     <div class="quick-action-desc">View detailed analytics</div>
                 </a>
             </div>
+             <a href="qr_generator.php" class="quick-action">
+                    <div class="quick-action-icon" style="background:rgb(72, 236, 222);">
+                     <i class="fa-solid fa-qrcode"></i>
+                    </div>
+                    <div class="quick-action-title">Generate QR</div>
+                    <div class="quick-action-desc">Generating qr code</div>
+                </a>
+            </div>
         </div>
 
         <!-- Inventory Overview -->
