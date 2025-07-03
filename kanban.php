@@ -1,247 +1,257 @@
 <?php
-$totalEquipment = 245;
-$pendingTasks = 18;
-$inProgressTasks = 13;
-$completedTasks = 8;
+session_start();
 
-$tasks = [
-  'To Do' => [
-    ['title' => 'Software Update', 'device' => 'PC-001 • Desktop', 'count' => 245, 'percent' => 25],
-    ['title' => 'Configuration Update', 'device' => 'RT-008 • Router', 'count' => 18, 'percent' => 26],
-    ['title' => 'Disk Cleanup', 'device' => 'PC-078 • Desktop', 'count' => 'low', 'percent' => 20]
-  ],
-  'In Progress' => [
-    ['title' => 'Hard Drive Replacement', 'device' => 'LP-045 • Laptop', 'assignee' => 'Jane Smith'],
-    ['title' => 'Cartridge Replacement', 'device' => 'PR-012 • Printer', 'assignee' => 'Mike Johnson']
-  ],
-  'Completed' => [
-    ['title' => 'Port Configuration', 'device' => 'SW-075 • Switch', 'progress' => 80],
-    ['title' => 'Driver Optimization', 'device' => 'SC-007 • Scanner', 'progress' => 50]
-  ]
-];
+// Initialize tasks if not yet set
+if (!isset($_SESSION['tasks'])) {
+    $_SESSION['tasks'] = [
+        'To Do' => [
+            ['id' => 1, 'title' => 'Software Update', 'device' => 'PC-001 • Desktop', 'assignee' => 'N/A'],
+            ['id' => 2, 'title' => 'Configuration Update', 'device' => 'RT-008 • Router', 'assignee' => 'N/A']
+        ],
+        'In Progress' => [
+            ['id' => 3, 'title' => 'Hard Drive Replacement', 'device' => 'LP-045 • Laptop', 'assignee' => 'Jane Smith']
+        ],
+        'Completed' => [
+            ['id' => 4, 'title' => 'Driver Optimization', 'device' => 'SC-007 • Scanner', 'assignee' => 'Carlos De Lara']
+        ]
+    ];
+}
+
+$tasks = &$_SESSION['tasks'];
+
+// Handle new task submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['newTask'])) {
+    $title = trim($_POST['title']) ?: 'Untitled';
+    $device = trim($_POST['device']) ?: 'Unknown';
+    $assignee = trim($_POST['assignee']) ?: 'N/A';
+    $status = 'To Do';
+
+    $maxId = 0;
+    foreach ($tasks as $list) {
+        foreach ($list as $t) {
+            if ($t['id'] > $maxId) {
+                $maxId = $t['id'];
+            }
+        }
+    }
+
+    $newId = $maxId + 1;
+    $tasks[$status][] = [
+        'id' => $newId,
+        'title' => $title,
+        'device' => $device,
+        'assignee' => $assignee
+    ];
+
+    $_SESSION['success_message'] = "New task added successfully!";
+    header('Location: kanban.php');
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Kanban Dashboard</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f9fafb;
-      color: #111827;
-    }
-    .container {
-      max-width: 1200px;
-      margin: auto;
-      padding: 2rem;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-    }
-    .header h1 {
-      font-size: 1.8rem;
-      font-weight: 700;
-    }
-    .header nav a {
-      margin-left: 1.25rem;
-      font-size: 0.95rem;
-      text-decoration: none;
-      color: #2563eb;
-    }
+    <meta charset="UTF-8" />
+    <title>Kanban Board</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+          background: linear-gradient(15deg, rgba(0, 0, 0, 0.65) 0%, rgba(201, 44, 44, 0.65) 47%, rgba(244, 162, 97, 0.65) 100%);
+            margin: 0;
+            padding: 1rem;
+        }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
-    }
+        nav {
+            background: rgb(27, 132, 180);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
 
-    .card {
-      background: #ffffff;
-      border-radius: 0.5rem;
-      padding: 1.25rem;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    }
+        nav a {
+            color: white;
+            margin: 0 1rem;
+            text-decoration: none;
+            font-weight: bold;
+        }
 
-    .card h2 {
-      font-size: 2rem;
-      font-weight: bold;
-      margin: 0;
-    }
+        h1 {
+            text-align: center;
+            margin-top: 1rem;
+            color: #333;
+        }
 
-    .card p {
-      margin: 0.25rem 0;
-      font-size: 0.9rem;
-      color: #6b7280;
-    }
+        .board {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 2rem;
+            justify-content: center;
+        }
 
-    .task-section {
-      margin-bottom: 2rem;
-    }
+        .column {
+            flex: 1 1 250px;
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            max-width: 300px;
+        }
 
-    .task-title {
-      font-size: 1.2rem;
-      font-weight: 600;
-      margin-bottom: 1rem;
-    }
+        .column h3 {
+            margin-top: 0;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 0.5rem;
+            color: #2563eb;
+        }
 
-    .task-list {
-      background: #fff;
-      border-radius: 0.5rem;
-      padding: 1rem;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-      margin-bottom: 1rem;
-    }
+        .task {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            transition: background 0.2s;
+        }
 
-    .task {
-      margin-bottom: 1rem;
-    }
+        .task:hover {
+            background: #e0f2fe;
+        }
 
-    .task .title {
-      font-weight: 600;
-      margin-bottom: 0.25rem;
-    }
+        .add-task-btn {
+            display: block;
+            margin: 2rem auto;
+            padding: 0.75rem 1.5rem;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
 
-    .progress-bar {
-      background-color: #e5e7eb;
-      height: 6px;
-      border-radius: 5px;
-      overflow: hidden;
-    }
+        .add-task-btn:hover {
+            background: #1d4ed8;
+        }
 
-    .progress {
-      height: 100%;
-      background-color: #3b82f6;
-    }
+        #taskForm {
+            display: none;
+            background: #ffffff;
+            max-width: 450px;
+            margin: 2rem auto;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease-in-out;
+        }
 
-    .footer-actions {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 1rem;
-    }
+        #taskForm h2 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: #2563eb;
+            font-size: 1.3rem;
+            text-align: center;
+        }
 
-    .action-box {
-      text-align: center;
-      background: white;
-      padding: 1rem;
-      border-radius: 0.5rem;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
+        #taskForm label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #333;
+        }
 
-    .action-box p {
-      font-size: 0.85rem;
-      color: #6b7280;
-    }
+        #taskForm input {
+            width: 100%;
+            margin-bottom: 1.5rem;
+            padding: 0.6rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem;
+            background: #f9fafb;
+            transition: border 0.3s;
+        }
 
-    .action-box strong {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 0.25rem;
-      color: #111827;
-    }
-  </style>
+        #taskForm input:focus {
+            border-color:rgb(37, 205, 235);
+            outline: none;
+        }
+
+        #taskForm button {
+            background: #2563eb;
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            transition: background 0.3s;
+        }
+
+        #taskForm button:hover {
+            background: #1e40af;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>Kanban Dashboard</h1>
-      <nav>
-        <a href="#">Dashboard</a>
-        <a href="#">Help</a>
-        <a href="#">Sign In</a>
-      </nav>
-    </div>
+    <nav>
+        <a href="index.php">Home</a>
+        <a href="add_equipment.php">Add New Item</a>
+        <a href="generate_report.php">Generate Reports</a>
+    </nav>
 
-    <div class="grid">
-      <div class="card">
-        <h2><?= $totalEquipment ?></h2>
-        <p>Total Equipment</p>
-        <p style="color: #10b981;">+12.5% from last month</p>
-      </div>
-      <div class="card">
-        <h2><?= $pendingTasks ?></h2>
-        <p>Pending Tasks</p>
-        <p style="color: #ef4444;">-1 from previous</p>
-      </div>
-      <div class="card">
-        <h2><?= $inProgressTasks ?></h2>
-        <p>In Progress</p>
-        <p>Items need attention</p>
-      </div>
-      <div class="card">
-        <h2><?= $completedTasks ?></h2>
-        <p>Completed</p>
-        <p>Need data entry</p>
-      </div>
-    </div>
+    <h1>Manage and Track Maintenance Tasks</h1>
 
-    <div class="task-section">
-      <h3 class="task-title">Task Board</h3>
-      <div class="grid">
-        <!-- To-Do Column -->
-        <div class="task-list">
-          <h4>To Do</h4>
-          <?php foreach ($tasks['To Do'] as $task): ?>
-            <div class="task">
-              <div class="title"><?= $task['title'] ?></div>
-              <small><?= $task['device'] ?></small>
-              <div class="progress-bar">
-                <div class="progress" style="width: <?= $task['percent'] ?>%;"></div>
-              </div>
+    <?php if (!empty($_SESSION['success_message'])): ?>
+        <script>
+            alert('<?= addslashes($_SESSION["success_message"]) ?>');
+        </script>
+        <?php unset($_SESSION['success_message']); ?>
+    <?php endif; ?>
+
+    <button class="add-task-btn" onclick="toggleTaskForm()">+ New Task</button>
+
+    <form id="taskForm" method="POST">
+        <h2>Add New Task</h2>
+        <input type="hidden" name="newTask" value="1">
+
+        <label for="title">Task Title</label>
+        <input type="text" id="title" name="title" placeholder="e.g., Update Firmware" required>
+
+        <label for="device">Device</label>
+        <input type="text" id="device" name="device" placeholder="e.g., PC-001 • Desktop" required>
+
+        <label for="assignee">Assignee</label>
+        <input type="text" id="assignee" name="assignee" placeholder="e.g., Juan Dela Cruz">
+
+        <button type="submit">➕ Add Task</button>
+    </form>
+
+    <div class="board">
+        <?php foreach ($tasks as $status => $list): ?>
+            <div class="column">
+                <h3><?= htmlspecialchars($status) ?></h3>
+                <?php foreach ($list as $task): ?>
+                    <a class="task" href="task_detail.php?id=<?= $task['id'] ?>">
+                        <strong><?= htmlspecialchars($task['title']) ?></strong>
+                        <p><?= htmlspecialchars($task['device']) ?></p>
+                        <p>Assigned: <?= htmlspecialchars($task['assignee']) ?></p>
+                    </a>
+                <?php endforeach; ?>
             </div>
-          <?php endforeach; ?>
-        </div>
-
-        <!-- In Progress Column -->
-        <div class="task-list">
-          <h4>In Progress</h4>
-          <?php foreach ($tasks['In Progress'] as $task): ?>
-            <div class="task">
-              <div class="title"><?= $task['title'] ?></div>
-              <small><?= $task['device'] ?> • <?= $task['assignee'] ?></small>
-            </div>
-          <?php endforeach; ?>
-        </div>
-
-        <!-- Completed Column -->
-        <div class="task-list">
-          <h4>Completed</h4>
-          <?php foreach ($tasks['Completed'] as $task): ?>
-            <div class="task">
-              <div class="title"><?= $task['title'] ?></div>
-              <small><?= $task['device'] ?></small>
-              <div class="progress-bar">
-                <div class="progress" style="width: <?= $task['progress'] ?>%;"></div>
-              </div>
-            </div>
-          <?php endforeach; ?>
-        </div>
-      </div>
+        <?php endforeach; ?>
     </div>
 
-    <div class="footer-actions">
-      <div class="action-box">
-        <strong>Log Maintenance Task</strong>
-        <p>Record a new maintenance or repair activity</p>
-      </div>
-      <div class="action-box">
-        <strong>Add New Equipment</strong>
-        <p>Register a new device in the inventory</p>
-      </div>
-      <div class="action-box">
-        <strong>Generate QR Codes</strong>
-        <p>Create QR codes for equipment tracking</p>
-      </div>
-      <div class="action-box">
-        <strong>Search Equipment</strong>
-        <p>Find equipment by PC number or category</p>
-      </div>
-    </div>
-  </div>
+    <script>
+        function toggleTaskForm() {
+            const form = document.getElementById('taskForm');
+            form.style.display = (form.style.display === 'block') ? 'none' : 'block';
+        }
+    </script>
 </body>
 </html>
