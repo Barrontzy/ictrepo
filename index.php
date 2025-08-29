@@ -935,61 +935,80 @@ if (isset($_GET['success'])) {
                         </tr>
                     </thead>
                     <tbody id="inventoryTableBody">
-                        <?php 
-                        $itemCount = 0;
+                    <?php 
+                    $itemCount = 0;
+                    if ($items && $items->rowCount() > 0):
                         while ($row = $items->fetch(PDO::FETCH_ASSOC)): 
                             $itemCount++;
-                        ?>
-                        <tr>
-                            <td>
-                                <span class="asset-tag"><?php echo htmlspecialchars($row['asset_tag']); ?></span>
-                            </td>
-                            <td><?php echo htmlspecialchars($row['property_equipment'] ?: 'Not specified'); ?></td>
-                            <td>
-                                <?php if ($row['department']): ?>
-                                    <span class="badge badge-outline"><?php echo htmlspecialchars($row['department']); ?></span>
-                                <?php else: ?>
-                                    <span style="color: #94a3b8; font-style: italic;">Not specified</span>
-                                <?php endif; ?>
-                            </td>
-                            <td><?php echo htmlspecialchars($row['assigned_person'] ?: 'Not specified'); ?></td>
-                            <td><?php echo htmlspecialchars($row['location'] ?: 'Not specified'); ?></td>
-                            <td>
-                                <?php if ($row['unit_price']): ?>
-                                    ₱<?php echo number_format($row['unit_price'], 2); ?>
-                                <?php else: ?>
-                                    <span style="color: #94a3b8;">N/A</span>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <?php 
-                                $statusClass = 'badge-success';
-                                $statusText = $row['status'] ?: 'Working Unit';
-                                
-                                if (strpos(strtolower($statusText), 'incomplete') !== false) {
-                                    $statusClass = 'badge-warning';
-                                    $statusText = 'Incomplete';
-                                }
-                                ?>
-                                <span class="badge <?php echo $statusClass; ?>">
-                                    <?php echo htmlspecialchars($statusText); ?>
-                                </span>
-                            </td>
-                            <td>
-                                <div class="action-buttons">
-                                    <button class="action-btn" title="View">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="action-btn" title="Edit">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="action-btn" title="Delete" style="color: #ef4444;">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        <?php endwhile; ?>
+
+                            $statusClass = 'badge-success';
+                            $originalStatus = $row['status'] ?: 'Working Unit';
+                            $statusText = $originalStatus;
+
+                            if (strpos(strtolower($statusText), 'incomplete') !== false) {
+                                $statusClass = 'badge-warning';
+                                $statusText = 'Incomplete';
+                            }
+                    ?>
+                    <tr
+                        data-id="<?= $row['id']; ?>"
+                        data-asset_tag="<?= htmlspecialchars($row['asset_tag']); ?>"
+                        data-equipment="<?= htmlspecialchars($row['property_equipment'] ?? ''); ?>"
+                        data-department="<?= htmlspecialchars($row['department'] ?? ''); ?>"
+                        data-person="<?= htmlspecialchars($row['assigned_person'] ?? ''); ?>"
+                        data-location="<?= htmlspecialchars($row['location'] ?? ''); ?>"
+                        data-value="<?= htmlspecialchars($row['unit_price'] ?? ''); ?>"
+                        data-status="<?= htmlspecialchars($originalStatus); ?>"
+                        data-date_acquired="<?= htmlspecialchars($row['date_acquired'] ?? ''); ?>"
+                        data-useful_life="<?= htmlspecialchars($row['useful_life'] ?? ''); ?>"
+                        data-inventory_item_no="<?= htmlspecialchars($row['inventory_item_no'] ?? ''); ?>"
+                        data-hardware_specifications="<?= htmlspecialchars($row['hardware_specifications'] ?? ''); ?>"
+                        data-software_specifications="<?= htmlspecialchars($row['software_specifications'] ?? ''); ?>"
+                        data-remarks="<?= htmlspecialchars($row['remarks'] ?? ''); ?>"
+                        data-created_at="<?= htmlspecialchars($row['created_at'] ?? ''); ?>"
+                    >
+                        <td><span class="asset-tag"><?php echo htmlspecialchars($row['asset_tag']); ?></span></td>
+                        <td><?php echo htmlspecialchars($row['property_equipment'] ?: 'Not specified'); ?></td>
+                        <td>
+                            <?php if ($row['department']): ?>
+                                <span class="badge badge-outline"><?php echo htmlspecialchars($row['department']); ?></span>
+                            <?php else: ?>
+                                <span style="color: #94a3b8; font-style: italic;">Not specified</span>
+                            <?php endif; ?>
+                        </td>
+                        <td><?php echo htmlspecialchars($row['assigned_person'] ?: 'Not specified'); ?></td>
+                        <td><?php echo htmlspecialchars($row['location'] ?: 'Not specified'); ?></td>
+                        <td>
+                            <?php if ($row['unit_price']): ?>
+                                ₱<?php echo number_format($row['unit_price'], 2); ?>
+                            <?php else: ?>
+                                <span style="color: #94a3b8;">N/A</span>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <span class="badge <?php echo $statusClass; ?>">
+                                <?php echo htmlspecialchars($statusText); ?>
+                            </span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="action-btn view-btn" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="action-btn edit-btn" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="action-btn delete-btn" title="Delete" style="color: #ef4444;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <?php endwhile; else: ?>
+                    <tr>
+                        <td colspan="8" class="text-center text-muted">No inventory items found.</td>
+                    </tr>
+                    <?php endif; ?>
                     </tbody>
                 </table>
             </div>
@@ -1102,5 +1121,9 @@ if (isset($_GET['success'])) {
             });
         });
     </script>
+
+    <?php include 'modals/view_equipment_modal.php'; ?>
+    <?php include 'modals/edit_equipment_modal.php'; ?>
+    <?php include 'modals/delete_equipment_modal.php'; ?>
 </body>
 </html>
